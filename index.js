@@ -35,6 +35,9 @@ const getFile = async (filename) => {
         case 'pdf':
             return handlePdf(filename);
         case 'doc':
+        case 'docx':
+        case 'ppt':
+        case 'pptx':
             return handleDoc(filename);
         case 'msg':
             return handleMsg(filename);
