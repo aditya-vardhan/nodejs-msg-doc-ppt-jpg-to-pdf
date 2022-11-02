@@ -1,9 +1,10 @@
 import express from 'express'
-import {promises as fs} from 'fs';
+import { promises as fs } from 'fs';
 import libre from 'libreoffice-convert';
-import path from 'path';
 import { jsPDF } from 'jspdf';
 import MsgReader from '@kenjiuno/msgreader';
+import PDFDocument from 'pdfkit';
+import getStream from 'get-stream';
 
 const app = express()
 const port = 3000;
@@ -12,7 +13,7 @@ const port = 3000;
 (async () => {
     const utilD = await import('util')
     libre.convertAsync = utilD.promisify(libre.convert)
-  })();
+})();
 
 app.get('/', async (req, res) => {
     console.log('received request', req.query)
@@ -31,9 +32,12 @@ app.listen(port, () => {
 
 const getFile = async (filename) => {
     const fileExtension = filename.split('.').pop()
-    switch(fileExtension){
+    switch (fileExtension) {
         case 'pdf':
             return handlePdf(filename);
+        case 'jpg':
+        case 'png':
+            return handleImg(filename);
         case 'doc':
         case 'docx':
         case 'ppt':
@@ -49,6 +53,20 @@ const handlePdf = async (filename) => {
     return fileData;
 }
 
+const handleImg = async (filename) => {
+    const doc = new PDFDocument({ autoFirstPage: false });
+
+    var img = doc.openImage(filename);
+    doc.addPage({ size: [img.width, img.height] });
+    doc.image(img, 0, 0);
+
+    doc.end();
+
+    const pdfStream = await getStream.buffer(doc);
+
+    return pdfStream;
+}
+
 const handleDoc = async (filename) => {
     const ext = '.pdf'
     // Read file
@@ -56,7 +74,7 @@ const handleDoc = async (filename) => {
 
     // Convert it to pdf format with undefined filter (see Libreoffice docs about filter)
     let pdfBuf = await libre.convertAsync(docxBuf, ext, undefined);
-    
+
     // Here in done you have pdf file which you can save or transfer in another stream
     return pdfBuf;
 }
