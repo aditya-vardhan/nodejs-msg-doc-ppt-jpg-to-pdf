@@ -1,0 +1,17 @@
+{
+  "name": "pdfconverter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@kenjiuno/msgreader": "^1.16.0-alpha.2",
+    "jspdf": "^2.5.1",
+    "libreoffice-convert": "^1.4.1"
+  }
+}
